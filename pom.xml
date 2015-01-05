@@ -7,6 +7,9 @@
     <name>json-dependencies Maven Mojo</name>
     <version>0.0.1-SNAPSHOT</version>
 
+    <scm>
+        <url>git@github.com:existanze/json-dependencies-maven-plugin.git</url>
+    </scm>
     <build>
         <plugins>
             <plugin>
