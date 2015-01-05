@@ -8,8 +8,10 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <scm>
-        <url>git@github.com:existanze/json-dependencies-maven-plugin.git</url>
+        <developerConnection>scm:git:git@github.com:existanze/json-dependencies-maven-plugin.git</developerConnection>
+        <tag>HEAD</tag>
     </scm>
+
     <build>
         <plugins>
             <plugin>
