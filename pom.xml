@@ -5,7 +5,7 @@
     <artifactId>json-dependencies</artifactId>
     <packaging>maven-plugin</packaging>
     <name>json-dependencies Maven Mojo</name>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
 
     <scm>
         <developerConnection>scm:git:git@github.com:existanze/json-dependencies-maven-plugin.git</developerConnection>
