@@ -45,6 +45,11 @@ public class JsonListDependencies
             File[] files = jars.listFiles();
             String filesStr="";
 
+            if(files == null){
+                return;
+            }
+
+
             for(File f: files){
 
 
