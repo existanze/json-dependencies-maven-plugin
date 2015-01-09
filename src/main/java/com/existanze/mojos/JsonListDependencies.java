@@ -20,60 +20,103 @@ public class JsonListDependencies
     extends AbstractMojo
 {
 
-    @Parameter(name="jars",required = true)
-    private File jars;
+    @Parameter(name="includes",required = true)
+    private String[] includes;
 
     @Parameter(name="output",required = true)
     private File output;
+
+    @Parameter(name="baseUri")
+    private String baseUri;
+
+
+
+    public Object[] getDirNode(String base, File file){
+
+
+        if(baseUri==null){
+            baseUri="";
+        }
+
+        if(!file.isDirectory()){
+
+            String _relative = file.getAbsolutePath().replaceAll(base,"");
+            String _file = _relative.substring(_relative.lastIndexOf("/")+1);
+
+            Map<String,Object> fO = new HashMap<String, Object>();
+            fO.put("name",_file);
+            fO.put("path", baseUri+_relative);
+            fO.put("fileSize", file.length());
+            fO.put("lastModified",file.lastModified());
+            return new Object[]{file.length(),Arrays.asList(fO)};
+        }
+
+        List<Map<String,Object>> fileObjects = new ArrayList<Map<String,Object>>();
+        File[] files = file.listFiles();
+        String filesStr="";
+
+        if(files == null){
+            return null;
+        }
+
+
+        long total = 0L;
+
+
+        for(File f: files){
+
+            if(f.isDirectory()){
+                Object[] dirNode = getDirNode(base,f);
+                if(dirNode !=null){
+                    fileObjects.addAll((Collection<? extends Map<String, Object>>) dirNode[1]);
+                    total += (Long)dirNode[0];
+                }
+            }else{
+
+                String _relative = f.getAbsolutePath().replaceAll(base,"");
+                String _file = _relative.substring(_relative.lastIndexOf("/")+1);
+
+
+                Map<String,Object> fO = new HashMap<String, Object>();
+                fO.put("name",f.getAbsolutePath().replaceAll(base,""));
+                fO.put("path",baseUri+"/"+_relative);
+                fO.put("fileSize",f.length());
+                fO.put("lastModified",f.lastModified());
+
+                total += f.length();
+                fileObjects.add(fO);
+            }
+        }
+
+        return new Object[]{total,fileObjects};
+
+    }
 
 
     public void execute()
         throws MojoExecutionException
     {
 
-        getLog().info("Starting to create list "+jars);
-
-        long total = 0;
         Map<String,Object> jsonMap= new HashMap<String,Object>();
 
 
         jsonMap.put("compiled",String.valueOf(System.currentTimeMillis()));
 
 
+        long total=0L;
+        List<Map<Object,String>> files = new ArrayList<Map<Object,String>>();
+        for(String include: includes){
 
-            List<Map<String,Object>> fileObjects = new ArrayList<Map<String,Object>>();
-            File[] files = jars.listFiles();
-            String filesStr="";
-
-            if(files == null){
-                return;
+            File file = new File(include);
+            Object[] dirNode = getDirNode(include,file);
+            if(dirNode !=null){
+                files.addAll((Collection<? extends Map<Object, String>>) dirNode[1]);
+                total += (Long)dirNode[0];
             }
+        }
 
-
-            for(File f: files){
-
-
-                if(f.getAbsolutePath().endsWith(".jar")){
-
-
-                    String jar = f.getAbsolutePath().substring(f.getAbsolutePath().lastIndexOf("/")+1);
-                    String jarName= jar.replaceAll(".jar","");
-
-                    Map<String,Object> fO = new HashMap<String, Object>();
-                    fO.put("name",jarName);
-                    fO.put("path","repo"+f.getAbsolutePath().replaceAll(jars.getAbsolutePath(),""));
-                    fO.put("fileSize",f.length());
-                    fO.put("lastModified",f.lastModified());
-
-                    total += f.length();
-
-                    fileObjects.add(fO);
-                }
-            }
-
-        jsonMap.put("libs",fileObjects);
+        jsonMap.put("files",files);
         jsonMap.put("total",total);
-
 
         FileWriter fileWriter = null;
         try {
@@ -91,11 +134,17 @@ public class JsonListDependencies
 
     }
 
-    public void setJars(File jars) {
-        this.jars = jars;
+
+    public void setIncludes(String[] includes) {
+        this.includes = includes;
+    }
+
+    public void setBaseUri(String baseUri) {
+        this.baseUri = baseUri;
     }
 
     public void setOutput(File output) {
         this.output = output;
     }
+
 }

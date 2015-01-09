@@ -22,8 +22,23 @@ public class JsonListDependenciesTest extends TestCase{
     {
 
         JsonListDependencies jl = new JsonListDependencies();
-        jl.setJars(new File("repo"));
+        jl.setIncludes(new String[]{
+            "repo"
+        });
+        jl.setBaseUri("http://www.existanze.com/ortholand");
         jl.setOutput(new File("out.json"));
+        jl.execute();
+    }
+
+    @Test
+    public void testNoBaseUri() throws Exception
+    {
+
+        JsonListDependencies jl = new JsonListDependencies();
+        jl.setIncludes(new String[]{
+            "repo"
+        });
+        jl.setOutput(new File("out-no-base-uri.json"));
         jl.execute();
     }
 }
